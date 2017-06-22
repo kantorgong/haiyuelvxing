@@ -1,0 +1,76 @@
+<?php
+/**
+* @作者：limj(李绵军)
+* @描述：
+* @名称：BaseController.php
+* @版本：1.0
+* @时间：17-1-4
+*/
+namespace api\modules\ticketv1\controllers;
+use api\base\BaseApiController;
+
+class BaseController extends BaseApiController
+{
+
+
+
+    /**
+     * @Desc: 初始化方法
+     */
+    public function init()
+    {
+        parent::init();
+        $params = \yii\helpers\ArrayHelper::merge(\Yii::$app->request->getBodyParams(), \Yii::$app->request->get());
+        $this->guid = $params['guid'];
+        if(empty($this->guid))
+        {
+            // @todo guid为空待处理
+        }
+        /*        if($this->__checkSign($params) === false)
+                {
+                   // @todo 校验签名不通过待处理
+                }*/
+//        $this->uid = $this->getUid($this->guid);
+          // 访问速率控制
+//        $this->_checkAccess();
+    }
+
+    protected function __checkSign($params)
+    {
+        $sign = $params['sign'];
+        unset($params['r'], $params['sign']);
+        $params['mcrky'] = \Yii::$app->params['mcrky'];
+        ksort($params);
+        $string = '';
+        foreach($params as $key=>$value)
+        {
+            $string .= $key . '=' . $value . '&&';
+        }
+        $string = trim($string, '&&');
+        $sha1Str = sha1($string);
+        if($sha1Str !== $sign) return false;
+        return true;
+    }
+
+    /**
+     * 描述：返回数据格式
+     * @meesage: 对应错误信息，成功返回null
+     * @errno: 0请求成功、-1系统错误（提示给前端人员）、-2用户错误（提示给用户）
+     */
+    public function show($data, $message=null, $errno=0)
+    {
+        return ['rsm'=>$data,
+                'err'=>$message,
+                'errno'=>$errno,
+        ];
+    }
+
+    /**
+     * 描述：解析guid
+     */
+    public function getOpenId($seesion_key)
+    {
+        $userInfo = \Yii::$app->cache->get($seesion_key);
+        return $userInfo['openid'];
+    }
+}

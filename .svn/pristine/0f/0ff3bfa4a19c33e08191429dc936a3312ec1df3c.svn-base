@@ -1,0 +1,21 @@
+<?php
+
+namespace api\modules\xxcbv1\controllers;
+
+use Yii;
+use api\base\BaseApiController;
+
+class UserController extends BaseApiController
+{
+    public function actions()
+    {
+        $actions = parent::actions();
+        unset($actions['index'], $actions['update'], $actions['create'], $actions['delete'], $actions['view']);
+        return $actions;
+    }
+
+    public function actionIndex()
+    {
+        echo 111;die;
+    }
+}

@@ -1,0 +1,59 @@
+<?php
+/**
+ * @filename BaseController.php
+ * @encoding UTF-8
+ * @author tianxq
+ * @copyright xxcb
+ * @license xxcb
+ * @datetime 2017-1-13 17:02:50
+ * @version 1.0
+ * @Description 官网头版头条接口类
+ * @copyright (c) 2017-1-13, 潇湘晨报（版权）
+ * @access public 权限
+ */
+namespace api\modules\linev1\controllers;
+
+use api\base\BaseApiController;
+
+class BaseController extends BaseApiController
+{
+
+    /**
+     * @Desc: 初始化方法
+     */
+    public function init()
+    {
+        parent::init();
+        $params = \yii\helpers\ArrayHelper::merge(\Yii::$app->request->getBodyParams(), \Yii::$app->request->get());
+        $this->guid = $params['guid'];
+        if(empty($this->guid))
+        {
+            // @todo guid为空待处理
+            return $this->show(array(), 'guid为空');
+        }
+    }
+
+
+    /**
+     * 描述：返回数据格式
+     * @flag 是否jsonp返回数据
+     * @meesage: 对应错误信息，成功返回null
+     * @errno: 0请求成功、-1系统错误（提示给前端人员）、-2用户错误（提示给用户）
+     */
+    public function show($data, $flag = null, $message=null, $errno=0)
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST');
+        header('Access-Control-Max-Age: 1000');
+        if ($flag)return $flag.'('.json_encode(array(
+            'rsm'=>$data,
+            'err'=>$message,
+            'errno'=>$errno,
+        )).')';
+        return [
+            'rsm'=>$data,
+            'err'=>$message,
+            'errno'=>$errno,
+        ];
+    }
+}

@@ -1,0 +1,24 @@
+<?php
+/**
+ * CardController
+ * 作者: limj
+ * 版本: 17-1-9
+ */
+
+namespace api\modules\ticketv1\controllers;
+
+
+class CardController extends BaseController
+{
+    public $modelClass = 'common\models\xxcb\TicketActivity';
+
+    /**
+     * 描述：每日剧场
+     */
+    public function actionView()
+    {
+        $dataArr['src'] = \Yii::$app->request->hostInfo . '/' . 'yqh.jpg';
+        $dataArr['src'] = 'http://f3.xxcb.cn/wenyirili/201701/yqh.jpg';
+        return $this->show($dataArr);
+    }
+} 

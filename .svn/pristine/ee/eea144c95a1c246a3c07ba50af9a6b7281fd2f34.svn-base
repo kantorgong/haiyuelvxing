@@ -1,0 +1,89 @@
+<?php
+$params = array_merge(
+    require(__DIR__ . '/../../common/config/params.php'),
+    require(__DIR__ . '/../../common/config/params-local.php'),
+    require(__DIR__ . '/params.php'),
+    require(__DIR__ . '/params-local.php')
+);
+
+return [
+    'id' => 'app-api',
+    'basePath' => dirname(__DIR__),
+    'bootstrap' => [
+        'log'
+    ],
+    'modules' => [
+        'xxcbv1' => [
+            'class' => 'api\modules\xxcbv1\Module',
+        ],
+        'ticketv1' => [
+            'class' => 'api\modules\ticketv1\TicketModule',
+        ],
+        'lovev1' => [
+            'class' => 'api\modules\lovev1\LoveModule',
+        ],
+        'linev1' => [
+            'class' => 'api\modules\linev1\LineModule',
+        ],
+    ],
+    'controllerNamespace' => 'api\controllers',
+    'components' => [
+        'user' => [
+            'identityClass' => 'common\models\uvdb\Users',
+        ],
+        'urlManager' => [
+            'enablePrettyUrl' => true, // 启用美化URL
+            'enableStrictParsing' => true, // 是否执行严格的url解析
+            'showScriptName' => false, // 在URL路径中是否显示脚本入口文件
+            'rules' => [
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => [
+                        'xxcbv1/user',
+                        'xxcbv1/acnews'
+                    ]
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => [
+                        'ticketv1/default',
+                        'ticketv1/calendar',
+                        'ticketv1/list',
+                        'ticketv1/center',
+                        'ticketv1/card',
+                        'ticketv1/user',
+                    ]
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => [
+                        'lovev1/user',
+                        'lovev1/record',
+                        'lovev1/message',
+                        'lovev1/upload',
+                    ]
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => [
+                        'linev1/line',
+                        'linev1/upload'
+                    ]
+                ],
+            ]
+        ],
+        'log' => [
+            'traceLevel' => YII_DEBUG ? 3 : 0,
+            'targets' => [
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => [
+                        'error',
+                        'warning'
+                    ]
+                ]
+            ]
+        ],
+    ],
+    'params' => $params
+];

@@ -1,0 +1,176 @@
+<?php
+/**
+ * @filename LineController.php
+ * @encoding UTF-8
+ * @author tianxq
+ * @copyright xxcb
+ * @license xxcb
+ * @datetime 2017-1-13 17:02:50
+ * @version 1.0
+ * @Description 官网头版头条接口类
+ * @copyright (c) 2017-1-13, 潇湘晨报（版权）
+ * @access public 权限
+ */
+
+namespace api\modules\linev1\controllers;
+
+use Yii;
+use components\XyXy;
+use common\models\xxcb\TopLine;
+use common\models\xxcb\Sensitiveword;
+use api\modules\linev1\controllers\UploadController;
+
+class LineController extends BaseController
+{
+    public $modelClass = 'common\models\xxcb\TopLine';
+
+    /**
+     * 描述：展示头版头条
+     */
+    public function actionView()
+    {
+        $model = $this->modelClass;
+
+        $dataArr = $model::find()
+                ->where(['guid'=>$this->guid])
+                ->asArray()
+                ->one();
+        
+        return $this->show($dataArr, $params['callback']);
+    }
+    
+    /**
+     * 描述：添加头版头条
+     */
+    public function actionCreate()
+    {
+        $model = new TopLine();
+        $callback = Yii::$app->request->get('callback');
+        //参数组
+        $params = \Yii::$app->request->getBodyParams();
+        if(!$params['t_pic']) {
+            return $this->show('', $callback, '请上传你的照片', -2);
+        }
+        if(!$params['t_name']) {
+            return $this->show('', $callback, '请填写你的名字', -2);
+        }
+        /* if(!$params['keywords']) {
+            return $this->show('', $callback, '请填写关键字', -2);
+        } */
+        if(!$params['t_note']) {
+            return $this->show('', $callback, '请填写此刻最想说的一句话', -2);
+        }
+        
+        if (mb_strlen($params['t_name'], 'utf-8') > 8)
+        {
+            return $this->show('', $callback, '名字限8个字以内', -2);
+        }
+        if (mb_strlen($params['t_note'], 'utf-8') > 10)
+        {
+            return $this->show('', $callback, '此刻最想说的一句话限10个字以内', -2);
+        }
+        
+        //敏感词过滤
+        $wordTree = $this->getWordTreeByPage();
+        $params['t_name'] = str_replace(' ', '', $params['t_name']);
+        $params['t_name'] = str_replace($wordTree, 'xx', $params['t_name']);
+        $model->t_name = $params['t_name'];
+        
+        $params['t_note'] = str_replace(' ', '', $params['t_note']);
+        $params['t_note'] = str_replace($wordTree, 'xx', $params['t_note']);
+        $params['t_note'] && $model->t_note = $params['t_note'];
+        
+        //生成该头条guid编号
+        $model->guid = $this->getGuidNo();
+        //图片处理
+        $img = $params['t_pic'];
+        if ($img )
+        {
+            if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $img, $result))
+            {
+                $img = str_replace($result[1], '', $img);
+            }
+            $pic = $this->uploadImage($img, $model->guid);
+            if (is_array($pic))return $this->show('', $pic['err'], -1);
+            $model->t_pic = $pic;
+        }
+        
+        //禁词过滤 关键字小于2个字
+       /*  $wordTree = $this->getWordTreeByPage();
+        if (mb_strlen($params['keywords'], 'utf-8') > 2)
+        {
+            return $this->show('', $callback, '关键字限2个字以内', -2);
+        }
+        $model->keywords = str_replace($wordTree, 'xx', $params['keywords']); */
+        
+        $model->insert_time = time();
+                
+        $model->save();
+        return $this->show(array('guid'=>$model->guid, 't_name'=>$model->t_name, 't_note'=>$model->t_note), $callback);
+    }
+    
+    /**
+     * guid编号生成
+     * @param $id 头条ID
+     * guid编号组成： mch_id+yyyymmdd + 10位一天内不能重复的数字
+     */
+    private function getGuidNo()
+    {
+        $guid_no  = strtoupper(md5(uniqid(mt_rand(), true)));
+        return $guid_no;
+    }
+    
+
+    /**
+     * 得到禁词树
+     * @return arr:
+     */
+    private function getWordTreeByPage()
+    {
+        $wordTree = array();
+        $blackWord = new Sensitiveword();
+        $result = $blackWord::find()->asArray()->all();
+        if(!$result)return $wordTree;
+        
+        foreach($result as $value)
+        {
+            $wordTree[] = $value['word'];
+        }
+
+        return $wordTree;
+    }
+    
+    //上传图片
+    private function uploadImage($img, $guid)
+    {
+        //设置上传路径
+        $upload_dir = Yii::getAlias('@upload');
+        $savePath = 'wxs/xxcbtopline/' . date('Ym') . '/';
+        $path = $upload_dir . '/' . $savePath;
+        if (!is_dir($path))
+        {
+            @mkdir($path,0777,true);
+        }
+        
+        //读取图片文件，转换成base64编码格式
+        header('Content-type:text/html;charset=utf-8');
+        $savePic = $path . $guid . '.jpg';
+        //匹配出图片的格式
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $img, $result))
+        {
+            @file_put_contents($savePic, base64_decode(str_replace($result[1], '', $img)));
+        }
+        else
+        {
+            $img = str_replace(' ', '+', $img);
+            file_put_contents($savePic, base64_decode($img));
+        }
+        if (!file_exists($savePic))
+        {
+            return array('err'=>'上传图片失败');
+        }
+        $url = XyXy::getUploadWebUrl() . $savePath . $guid . '.jpg';
+        return $url;
+    }
+    
+} 

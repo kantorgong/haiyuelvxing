@@ -1,0 +1,35 @@
+<?php
+/**
+ * @filename LineModule.php
+ * @encoding UTF-8
+ * @author tianxq
+ * @copyright xxcb
+ * @license xxcb
+ * @datetime 2017-1-13 17:02:50
+ * @version 1.0
+ * @Description 官网头版头条接口类
+ * @copyright (c) 2017-1-13, 潇湘晨报（版权）
+ * @access public 权限
+ */
+namespace api\modules\linev1;
+
+/**
+ * ticketv1 module definition class
+ */
+class LineModule extends \yii\base\Module
+{
+    /**
+     * @inheritdoc
+     */
+    public $controllerNamespace = 'api\modules\linev1\controllers';
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+
+        // custom initialization code goes here
+    }
+}

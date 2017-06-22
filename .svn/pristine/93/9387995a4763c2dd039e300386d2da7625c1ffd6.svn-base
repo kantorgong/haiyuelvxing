@@ -1,0 +1,14 @@
+<?php
+
+namespace api\modules\lovev1;
+
+/**
+ * love module definition class
+ */
+class LoveModule extends \yii\base\Module
+{
+    /**
+     * @inheritdoc
+     */
+    public $controllerNamespace = 'api\modules\lovev1\controllers';
+}

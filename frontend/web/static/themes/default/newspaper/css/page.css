@@ -1,0 +1,334 @@
+/**
+ *  MAIN -----------------
+ *  页面样式代码
+ */
+.swiper-slide {
+  background-image: url("../img/detail_bg.jpg");
+}
+.swiper-slide.page5 {
+  background-image: url("../img/detail_p5.jpg");
+}
+ul,
+li,
+p,
+input,
+h2 {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+a {
+  text-decoration: none;
+}
+.error-top {
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 30%;
+}
+.error-top p {
+  font-size: 16px;
+  text-align: center;
+  color: #c6ac87;
+}
+.error-top em {
+  font-style: normal;
+  font-size: 40px;
+  text-align: center;
+  color: #c6ac87;
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+}
+.error-bot {
+  width: 80%;
+  position: absolute;
+  left: 10%;
+  bottom: 20%;
+  font-size: 14px;
+  text-align: center;
+}
+.error-bot p {
+  display: block;
+  margin-bottom: 20px;
+  text-align: left;
+  color: #c7ae8f;
+  font-weight: bold;
+}
+.error-bot a {
+  padding: 5px 12px;
+  background: #61403b;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 2px;
+  margin: 0 10px;
+}
+#share-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 300px;
+  height: 300px;
+  opacity: 0;
+}
+.swiper-container {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+}
+.index-swiper-container {
+  background: url(../img/index_bg.jpg) repeat;
+  width: 100%;
+  min-height: 100%;
+}
+.index-swiper-container .more {
+  padding: 15px 0;
+  display: block;
+  font-size: 12px;
+  color: #333;
+  margin: 0 auto;
+  width: 120px;
+  text-align: center;
+  margin-top: -30px;
+}
+.index-top {
+  position: relative;
+  height: 50px;
+}
+.index-top img {
+  width: 100%;
+}
+.index-top .seach {
+  position: absolute;
+  bottom: 10px;
+  left: 6%;
+  display: block;
+  width: 88%;
+  height: 30px;
+  background: #fff;
+  border: 1px solid #cacaca;
+}
+.index-top .seach-ico01 {
+  width: 8%;
+  float: left;
+  height: 28px;
+  line-height: 30px;
+  padding-left: 1%;
+  padding-top: 1px;
+}
+.index-top .seach-ico01 img {
+  width: 17px;
+}
+.index-top .seach-ico02,
+.index-top .seach-ico03 {
+  position: absolute;
+  width: 8px;
+  top: 10px;
+  left: 38%;
+}
+.index-top .seach-ico03 {
+  left: 74%;
+}
+.index-top select {
+  font-style: normal;
+  float: left;
+  height: 28px;
+  line-height: 28px;
+  font: 14px Microsoft YaHei, "\5B8B\4F53", Arial, HELVETICA;
+  width: 36%;
+  padding-left: 2%;
+  border-radius: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  display: block;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  background-color: #FFFFFF;
+  color: #c8c8c8;
+}
+.index-top .button {
+  width: 20%;
+  color: #c8c8c8;
+  background: #fff;
+  opacity: 0;
+  position: absolute;
+  right: 1px;
+  top: 0px;
+  z-index: 2;
+  height: 28px;
+  border: none;
+}
+.index-top .button-ico {
+  display: block;
+  float: right;
+  width: 20%;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  color: #c8c8c8;
+  background: #fff;
+  font-size: 14px;
+  border-left: 1px solid #cacaca;
+}
+.index-list {
+  overflow: hidden;
+  width: 100%;
+  padding-top: 35px;
+}
+.index-list li {
+  overflow: hidden;
+  margin: 0 auto;
+  margin-top: -20px;
+  width: 100%;
+  background: url(../img/listli.png) bottom center no-repeat;
+  padding-bottom: 65px;
+}
+.index-list li a {
+  display: block;
+  float: left;
+  margin: 0 8%;
+  width: 34%;
+  color: #5b3f35;
+  text-align: center;
+}
+.index-list li a img {
+  width: 100%;
+  box-shadow: 3px 0px 7px #666464;
+  -webkit-box-shadow: 3px 0px 7px #666464;
+}
+.index-list li strong {
+  font-size: 14px;
+  font-weight: normal;
+  display: block;
+  text-align: center;
+  margin-bottom: 12px;
+  height: 43px;
+  overflow: hidden;
+}
+.index-list li span {
+  display: block;
+  text-align: center;
+  font-size: 16px;
+  background: #fdd700;
+  color: #5b3f35;
+  margin: 0 auto;
+  border-radius: 2px;
+  margin-bottom: 3px;
+  overflow: hidden;
+  height: 21px;
+}
+.back-index {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: url(../img/back_ico.png) no-repeat left center;
+  height: 20px;
+  text-align: right;
+  color: #505050;
+  font-size: 12px;
+  border: 1px solid #505050;
+  padding-right: 5px;
+  padding-left: 23px;
+}
+.back-index span {
+  display: block;
+  border-left: 1px solid #505050;
+  height: 18px;
+  padding-left: 3px;
+  line-height: 18px;
+}
+.pop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+}
+.pop span {
+  display: block;
+  background: rgba(0, 0, 0, 0.6);
+  width: 95%;
+  height: 71%;
+  margin: 0 auto;
+  margin-top: 46px;
+}
+.pop img {
+  position: absolute;
+  top: 22%;
+  left: 25%;
+  width: 50%;
+}
+.list-swiper-container .title {
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 10px;
+  overflow: hidden;
+  position: relative;
+  height: 25px;
+}
+.list-swiper-container .title strong {
+  color: #fff;
+  background: #fdd700;
+  float: left;
+  font-size: 14px;
+  color: #5b3f35;
+  padding: 0 2px;
+  max-width: 65%;
+  overflow: hidden;
+  height: 18px;
+  line-height: 18px;
+}
+.list-swiper-container .title strong span {
+  font-weight: normal;
+}
+.list-swiper-container .page5 {
+  color: #5a3226;
+  font-size: 16px;
+}
+.list-swiper-container .page5 .top {
+  margin-top: 54%;
+}
+.list-swiper-container .page5 .weixin {
+  margin: 0 auto;
+  width: 42%;
+  display: block;
+}
+.list-swiper-container .page5 .weixin p {
+  text-align: center;
+  margin-top: 10px;
+}
+.list-swiper-container .page5 .weixin img {
+  width: 100%;
+}
+.list-swiper-container .page5 .fot {
+  margin-top: 30%;
+  font-weight: bold;
+}
+.list-swiper-container .page5 .fot a {
+  display: block;
+  width: 50%;
+  margin: 0 auto;
+  padding: 7px 0;
+  margin-top: 6px;
+  color: #ffd900;
+  background: #5a3226;
+  text-align: center;
+  font-size: 14px;
+  font-weight: normal;
+}
+@media screen and (max-height: 480px) {
+  .list-swiper-container .page5 .top {
+    margin-top: 42%;
+  }
+  .list-swiper-container .page5 .fot {
+    margin-top: 16%;
+  }
+}
+@media screen and (max-height: 568px) {
+  .list-swiper-container .page5 .fot {
+    margin-top: 20%;
+  }
+}

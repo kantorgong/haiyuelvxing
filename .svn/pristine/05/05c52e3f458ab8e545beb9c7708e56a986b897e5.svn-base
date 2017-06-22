@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <meta charset="UTF-8">
+	  <title>“内外——空间设计说”高校巡回讲座第二场</title>
+	  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	  <meta name="format-detection" content="telephone=no">
+	  <meta name="apple-mobile-web-app-capable" content="yes">
+	  <meta name="description" content="由潇湘晨报设计长沙主办，泥巴公社装饰全程协办的“内外——空间设计说”高校巡回讲座第二站我们来到湖南商学院，台湾知名室内设计师张逸钧将为大家分享实战中的室内设计。">
+	  <link rel="stylesheet" href="http://s2.xxcb.cn/xy/common/swiper/swiper.min.css">
+	  <link rel="stylesheet" href="http://s2.xxcb.cn/xy/common/logic/main-new.css">
+	  <script type="text/javascript" src="http://s2.94uv.com/js/common/jquery-1.9.1.min.js"></script>
+	  <!--<script src="http://qing.94uv.cn/common/weixin-plusxxcb.js"></script>-->
+	  <script src="http://qing.94uv.cn/common/swiper/3-0-6/swiper.min.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

@@ -1,0 +1,192 @@
+<?php
+/**
+ * ListController
+ * 作者: limj
+ * 版本: 17-1-5
+ */
+
+namespace api\modules\ticketv1\controllers;
+use common\models\xxcb\TicketActivity;
+use components\helper\CommonUtility;
+
+class ListController extends BaseController
+{
+    public $modelClass = 'common\models\xxcb\TicketActivity';
+    public $limit = 4;
+    public $optionMethod = [
+        1 => 'getDetail'
+    ];
+    /**
+     * 描述：首页编辑精选
+     */
+    public function actionIndex()
+    {
+        $page = \Yii::$app->request->get('page') ? intval(\Yii::$app->request->get('page')) : 0;
+        $data = $this->getList($page);
+
+        $dataArr = array_chunk($data, 3);
+        return $this->show($dataArr[$page]);
+    }
+
+    /**
+     * 描述：每日剧场
+     */
+    public function actionView()
+    {
+        $date = \Yii::$app->request->get('date') ? str_replace('.', '-', \Yii::$app->request->get('date')) : date('Y-m-d');
+        $page = \Yii::$app->request->get('page') ? intval(\Yii::$app->request->get('page')) : 0;
+        $dataArr = $this->getDataList($date, $page);
+
+        return $this->show($dataArr);
+    }
+
+    /**
+     * 描述：获取剧场详情
+     */
+    protected function getDetail($params)
+    {
+        $id = $params['id'];
+        $dataArr = [
+            'title'=>'天女散花：李磊艺术展',
+            'date'=>'2017年01月06日 09:00-16:40',
+            'address'=>'长沙市民生现代美术馆',
+            'price'=>'0',
+            'pic'=>'https://img1.doubanio.com/view/event_poster/median/public/105736b04f2a787.jpg',
+            'detail' => '各种刷微博、朋友圈。您经常能看到很多温馨的情绪照片，旧旧的很有时光的赶脚，但是用数码和手机怎么也拍不出那样的感觉，为什么？那是因为老照片都是用胶片拍摄的',
+        ];
+        return $this->show($dataArr);
+    }
+
+    private function getList($page)
+    {
+        $currTime = time();
+        $crrWeek = date('N', $currTime);
+        $starTime = date('Y-m-d', $currTime - 86400*($crrWeek-1));
+        $endTime = date('Y-m-d', $currTime + 86400*(7-$crrWeek));
+        $list = array();
+        $list = TicketActivity::find()
+            ->select('title,date,tv.address,pic,is_recommend,price,id')
+            ->leftJoin('ticket_venue as tv', 'ticket_activity.venue_id = tv.venue_id')
+            ->where(['status'=>2,'is_index'=>1])
+            ->andWhere(['between','date',$starTime, $endTime])
+            ->orderBy('is_recommend DESC,id DESC')
+            ->offset($page*$this->limit)
+            ->limit($this->limit)
+            ->asArray()
+            ->all();
+        return $list;
+        /*
+         // 测试数据
+        return [
+            ['title'=>'天女散花：李磊艺术展',
+             'date'=>'2017年01月06日 09:00-16:40',
+             'address'=>'长沙市民生现代美术馆',
+             'price'=>'0',
+             'pic'=>'https://img1.doubanio.com/view/event_poster/median/public/105736b04f2a787.jpg',
+             'is_recommend'=>1
+            ],
+            ['title'=>'德国广播交响乐团',
+                'date'=>'2017年01月03日 09:00-16:40',
+                'address'=>'长沙文化广场',
+                'price'=>'140',
+                'pic'=>'https://img3.doubanio.com/view/event_poster/median/public/fc631161e7043a0.jpg',
+                'is_recommend'=>0
+            ],
+            ['title'=>'白洋古筝乐器讲解暨音乐会',
+                'date'=>'2017年01月06日 09:00-16:40',
+                'address'=>'长沙文化广场',
+                'price'=>'180',
+                'pic'=>'https://img3.doubanio.com/view/event_poster/median/public/e0379087e09c05e.jpg',
+                'is_recommend'=>0
+            ],
+            ['title'=>'德国广播交响乐团',
+                'date'=>'2017年01月06日 09:00-16:40',
+                'address'=>' 长沙市音乐厅',
+                'price'=>'180',
+                'pic'=>'https://img3.doubanio.com/view/event_poster/median/public/9cbcf7ab4896b0d.jpg',
+                'is_recommend'=>1
+            ],
+            ['title'=>'钢琴家乔纳森·富尔内尔&斯洛伐克日利纳国家交响乐团音乐会',
+                'date'=>'2017年01月07日 11:00-16:40',
+                'address'=>' 长沙市音乐厅',
+                'price'=>'200',
+                'pic'=>'https://img1.doubanio.com/view/event_poster/median/public/900d134e1ecf0db.jpg',
+                'is_recommend'=>0
+            ],
+            ['title'=>'贝多芬第九交响曲《欢乐颂》',
+                'date'=>'2017年01月07日 20:00-22:00',
+                'address'=>' 长沙市音乐厅',
+                'price'=>'80',
+                'pic'=>'https://img1.doubanio.com/view/event_poster/median/public/f664befcd98497b.jpg',
+                'is_recommend'=>0
+            ],
+            ['title'=>'天使爱春天—德国埃森少女合唱团音乐会',
+                'date'=>'2017年01月12日 20:00-22:00',
+                'address'=>' 长沙市音乐厅',
+                'price'=>'30',
+                'pic'=>'https://img1.doubanio.com/view/event_poster/median/public/c7c78228081b428.jpg',
+                'is_recommend'=>1
+            ],
+            ['title'=>'以书换咖啡：你带一本书来到这里享受美好的一天',
+                'date'=>'2017年01月12日 08:00-12:00',
+                'address'=>'岳麓区 橘子洲江神庙旁橘洲客厅唐宁书店',
+                'price'=>'0',
+                'pic'=>'https://img3.doubanio.com/view/event_poster/median/public/7b2bd28a2949c55.jpg',
+                'is_recommend'=>0
+            ],
+            ['title'=>'闲暇的时间，来玩泥巴，静下心，做一个匠人',
+                'date'=>'2017年01月11日 09:00-12:00',
+                'address'=>'芙蓉区 长沙市芙蓉区人民中路德政园润心苑',
+                'price'=>'50',
+                'pic'=>'https://img3.doubanio.com/view/event_poster/median/public/08e9bad2791ab22.jpg',
+                'is_recommend'=>0
+            ],
+        ];
+        */
+    }
+
+    private function getDataList($date,$page)
+    {
+        $list = array();
+        $list = TicketActivity::find()
+            ->select('title,date,tv.address,pic,is_recommend,price,id')
+            ->leftJoin('ticket_venue as tv', 'ticket_activity.venue_id = tv.venue_id')
+            ->where(['status'=>2,'date'=>$date])
+            ->orderBy('is_recommend DESC,id DESC')
+            ->offset($page*$this->limit)
+            ->limit($this->limit)
+            ->asArray()
+            ->all();
+        if(empty($list))
+        {
+            $currTime = time();
+            $crrWeek = date('N', $currTime);
+            $starTime = date('Y-m-d', $currTime - 86400*($crrWeek-1));
+            $endTime = date('Y-m-d', $currTime + 86400*(7-$crrWeek));
+
+            //获取本周置顶推荐
+            $list = TicketActivity::find()
+                ->select('title,date,tv.address,pic,is_recommend,price,id')
+                ->leftJoin('ticket_venue as tv', 'ticket_activity.venue_id = tv.venue_id')
+                ->where(['status'=>2,'is_recommend'=>1])
+                ->andWhere(['between','date',$starTime, $endTime])
+                ->orderBy('id DESC')
+                ->offset($page*$this->limit)
+                ->limit($this->limit)
+                ->asArray()
+                ->all();
+        }
+        return $list;
+
+        /*
+         // 测试数据
+        $keyArr = array_rand($data, 4);
+        $dataArr = [];
+        foreach($keyArr as $value)
+        {
+            array_push($dataArr, $data[$value]);
+        }
+        return $dataArr;
+        */
+    }
+} 

@@ -1,0 +1,276 @@
+<?php
+/**
+ * @filename Acnews.php
+ * @encoding UTF-8
+ * @author tianxq
+ * @copyright xxcb
+ * @license xxcb
+ * @datetime 2016-12-29 14:02:50
+ * @version 1.0
+ * @Description 官网app新闻信息接口类
+ * @copyright (c) 2016-12-29, 潇湘晨报（版权）
+ * @access public 权限
+ */
+namespace api\modules\xxcbv1\controllers;
+
+use Yii;
+use api\base\BaseApiController;
+use yii\data\ActiveDataProvider;
+use common\models\xaap\Acnews;
+use components\helper\Curl;
+use components\XyXy;
+use components\caching\MemCached;
+/**
+ * Default controller for the `app` module
+ */
+class AcnewsController extends BaseApiController
+{
+    public $modelClass = 'common\models\xaap\Acnews';
+    /**
+     * 获取新闻列表
+     * @return array
+     */
+    public function actionIndex()
+    {
+        //首页 长沙 2，湖南 3，经济101，天下 53，娱体 54，周末 100，评论7 /测试上   经济91，周末 90   取3,4级推荐
+        $classid = Yii::$app->request->get('classid', 24);//栏目编号 默认显示首页
+        $page = Yii::$app->request->get('page', 1);//默认第一页
+        
+        //排序
+        $orderby = ['ordertime' => SORT_DESC];
+        //公共查询条件
+        $where['checked'] = 1;//审核的
+        $where['isdelete'] = 0;//正常可用的
+        $where['classid'] = $classid;
+        if ($classid == 24)
+        {
+            $where['classid'] = [2,3,7,53,54,80,81];
+        }
+        
+        //首页轮播图及快讯
+        if ($classid == 24 && $page == 1)
+        {
+            $scroll = $this->getScrollnews($where, $orderby);
+            $scroll = $this->makeList( $scroll ); //处理新闻列表
+            $data['list']['scroll'] = $scroll;
+            
+            $top = $this->getTopnews($where, $orderby);
+            $data['list']['top'] = $top;
+        }
+        
+        $info_key = "XXCb_XAPP_INFO_" . $classid;
+        $cache = $this->cache();
+        $ids = $cache->get( $info_key );//置顶信息id集合
+
+        //热点
+        if ($page == 1)
+        {
+            $hot = $this->getScrollnews($where, $orderby, 1);
+            $ids = array();
+            if (empty($hot)) $data['list']['hot'] = array();
+            //置顶信息处理
+            foreach ($hot as $k=>$n)
+            {
+                $ids [$k] = $n['id'];//置顶信息id集合
+                if (strpos($n['url'], 'http') === false)
+                {
+                    $date = date('Y-m', $n['datetime']);
+                    $hot[$k]['url'] = "http://m.xxcb.". XyXy::getEnv(true)."/appnews/$date/{$n['id']}.html";
+                }
+            }
+            $data['list']['hot'] = $hot;
+            $cache->set( $info_key,  $ids);
+        }
+        
+        $list = $this->getData($where, $orderby, $ids, $classid);
+
+        $data['list']['news'] = $list['news'];
+        $data['list']['pageCount'] = $list['pageCount'];
+        echo json_encode($data);
+    }
+    
+    /**
+     * @Desc: 返回详情列表
+     * @User: tianxq
+     * @param $id
+     */
+    public function actionView($id)
+    {
+        $field = 'a.id,a.classid,title,titleurl as url, smalltext AS summary,
+    newstime AS datetime,ordertime,titlepic AS img,writer,befrom,newstext,keyid';
+        $news = (new \yii\db\Query())
+            ->from('xaap.ac_news a')
+            ->leftJoin('xaap.ac_news_data d', 'a.id = d.id')
+            ->where(['a.id' => $id, 'checked' => 1, 'isdelete' => 0])
+            ->select($field)
+            ->one();
+        if (!$news) throw new Exception( '404' );
+      
+        //微信分享图片
+        $pattern = "/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg|\.png]))[\'|\"].*?[\/]?>/";
+        $content = $news['newstext']; //文章内容
+        preg_match_all($pattern,$content,$matchContent);
+        if(isset($matchContent[1][0])){
+          $default_img = $matchContent[1][0];
+        }else{
+          $default_img = "http://s2.xxcb.". XyXy::getEnv(true).'/mobile/images/share.jpg';//在相应位置放置一张命名为share的jpg图片
+        }
+        $news['share_pic'] = $news['img']?$news['img']:$default_img;//有标题图取标题图片，没有去内容第一张图片，再没有取默认图片
+    
+        //时间处理
+        $news['datetime'] = date('Y-m-d H:i:s', $news['datetime']);
+        //去掉分页符
+		$news["newstext"] = str_replace( "[!--empirenews.page--]", "", $news["newstext"] );
+		$news["newstext"] = str_replace( "[/!--empirenews.page--]", "", $news["newstext"] );
+		//摘要去掉标签 换行实体字符
+		$news['summary'] = strip_tags($news['summary']);
+		$news['summary'] = str_replace("\r", "", $news['summary']);
+		$news['summary'] = str_replace("\n", "", $news['summary']);
+		$news['summary'] = trim($news['summary']);
+        
+        //相关阅读
+        $news['relate'] = array();
+        if ($news['keyid'])
+        {
+            $news['relate'] = $this->getRelateNews($news['keyid']);
+        }
+        
+        return $news;
+    }
+
+    //获取新闻列表
+    private function getData($where, $orderby, $ids, $classid = 24)
+    {
+        if ($classid == 24)$where['isgood'] = [3,4];
+        
+        $perPage = Yii::$app->request->get('per-page', 6);//默认每页显示6条
+        //查询字段
+        $field = 'id,classid,title,titleurl as url, smalltext AS summary,
+    newstime AS datetime,ordertime,titlepic AS img';
+    
+        $query = Acnews::find()
+                ->where($where)
+                ->select($field)
+                ->orderBy($orderby)
+                ->asArray();
+        if (!empty($ids))
+        {
+            $query = Acnews::find()
+                ->where($where)
+                ->andWhere(['not in', 'id', $ids])
+                ->select($field)
+                ->orderBy($orderby)
+                ->asArray();
+        }
+        //生成查询
+        $provider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => $perPage,
+                ],
+            ]);
+    
+        //组装数据
+        $newsList = $provider->getModels();
+        $list['news'] = $this->makeList($newsList);
+        
+        $pagination = $provider->getPagination();
+        $list['pageCount'] = $pagination->getPageCount();//总页数
+        return $list;
+    }
+    //获取新闻轮播图
+    private function getScrollnews($where, $orderby, $istop = 0)
+    {
+        $field = "id,classid,title,titleurl as url,titlepic AS img,newstime AS datetime ";
+        //热点新闻
+        if ($istop == 1)
+        {
+            $scroll = Acnews::find()
+                ->where($where)
+                ->andWhere(['>', 'istop', 0])
+                ->andWhere(['is not', 'titlepic', null])
+                ->select($field)
+                ->orderBy($orderby)
+                ->limit(3)
+                ->asArray()
+                ->all();
+            return $scroll;
+        }
+
+        $where['isgood'] = 1;//一级推荐新闻轮播图
+        $scroll = Acnews::find()
+            ->where($where)
+            ->andWhere(['is not', 'titlepic', null])
+            ->select($field)
+            ->orderBy($orderby)
+            ->limit(3)
+            ->asArray()
+            ->all();
+        return $scroll;
+    }
+    
+    //获取快讯
+    private function getTopnews($where, $orderby)
+    {
+        $where['firsttitle'] = [1,2];//取一级头条、二级头条
+        $field = "id,classid,title,titleurl as url,titlepic AS img,newstime AS datetime ";
+        $top = Acnews::find()
+            ->where($where)
+            ->select($field)
+            ->orderBy($orderby)
+            ->asArray()
+            ->one();
+        if ($top && strpos($top['url'], 'http') === false)
+        {
+            $date = date('Y-m', $top['datetime']);
+            $top['url'] = "http://m.xxcb.". XyXy::getEnv(true)."/appnews/$date/{$top['id']}.html";
+        }
+        return $top;
+    }
+    //获取id对应新闻
+    private function getRelateNews($id)
+    {
+        $where['checked'] = 1;//审核的
+        $where['isdelete'] = 0;//正常可用的
+        $where['id'] = explode(',', $id);
+        $andwhere = ['<>', 'id', $id];
+        //排序
+        $orderby = ['ordertime' => SORT_DESC];
+        $field = "id,classid,title,titleurl as url,titlepic AS img,newstime AS datetime ";
+        $relate = Acnews::find()
+            ->where($where)
+            ->andWhere($andwhere)
+            ->select($field)
+            ->orderBy($orderby)
+            ->limit(5)
+            ->asArray()
+            ->all();
+        $relate = $this->makeList($relate);
+        return $relate;
+    }
+    //处理信息列表
+    private function makeList($list)
+    {
+        if (empty($list)) return array();
+        foreach ($list as $k=>$n)
+        {
+            if (strpos($n['url'], 'http') === false)
+            {
+                $date = date('Y-m', $n['datetime']);
+                $list[$k]['url'] = "http://m.xxcb.". XyXy::getEnv(true)."/appnews/$date/{$n['id']}.html";
+                $list[$k]['datetime'] = date('Y-m-d H:i:s', $n['datetime']);
+            }
+        }
+        return $list;
+    }
+    
+    //memcache
+    private function cache()
+    {
+        global $config;
+        $cache_config = $config['components']['memcached']['servers']['0'];
+        $m = new \Memcached();
+        $m->addServer($cache_config['host'], $cache_config['port']);
+        return $m;
+    }
+}

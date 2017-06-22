@@ -1,0 +1,43 @@
+<?php
+
+namespace api\base;
+
+use Yii;
+use \yii\rest\ActiveController;
+
+class BaseApiController extends ActiveController
+{
+
+    /**
+     * 描述：@var int 用户id
+     */
+
+    public $uid;
+
+    /**
+     * @var string 用户的唯一标识符
+     */
+    public $guid;
+
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        unset($behaviors['rateLimiter'], $behaviors['authenticator']);
+        return $behaviors;
+    }
+
+    public function actions()
+    {
+        //$actions = parent::actions();
+        //unset($actions['index'], $actions['update'], $actions['create'], $actions['delete'], $actions['view']);
+        return [];
+    }
+
+    public function actionOptions($id)
+    {
+        $params = \yii\helpers\ArrayHelper::merge(\Yii::$app->request->getBodyParams(), \Yii::$app->request->get());
+        $method = $this->optionMethod[$id];
+        return $this->$method($params);
+    }
+}

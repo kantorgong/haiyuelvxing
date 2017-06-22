@@ -1,0 +1,350 @@
+<?php
+/**
+ * @File: BaseController.php
+ * @User: zhujw <zhjw@xxcb.cn>
+ * @Date: 2016/3/24 10:21
+ * @Desc: 基础API控制器类
+ */
+namespace api\modules\ysv1\controllers;
+
+use Yii;
+use yii\rest\ActiveController;
+use yii\web\Link;
+use common\models\fengysdb\ApiLog;
+class BaseController extends ActiveController
+{
+    /**
+     * @var string 用户的唯一标识符
+     */
+    public $guid;
+
+    /**
+     * @var bool 用户是否登录
+     */
+    public $is_login = 0;
+
+    /**
+     * @var array 不用校验签名的白名单
+     */
+    public $white = [
+        'ysv1/sign-keys'
+    ];
+
+    /**
+     * @var array 需要登录的操作
+     */
+    public $need_login = [
+        'ysv1/user-collects',
+        'ysv1/user-plans'
+    ];
+
+    /**
+     * @var array 访问速率控制列表
+     * key=>value 'ysv1/jies' => [20,10]
+     * key  表示请求资源连接
+     * value 表示10秒内最大限制访问20次
+     */
+    public $access_rate = [];
+
+    /**
+     * @var string 用户登录密钥
+     */
+    public $login_sign = 'RSQW88UBCUY00NM6';
+
+    /**
+     * @Desc: 初始化方法
+     * @User: zhujw <zhjw@xxcb.cn>
+     */
+    public function init()
+    {
+        parent::init();
+
+        /** 初始化唯一标识符 */
+        $this->guid = Yii::$app->request->get('guid') ?: Yii::$app->request->post('guid');
+
+        /** 校验访问控制 */
+        $this->_checkAccess();
+
+        /** 校验签名 */
+        if (!Yii::$app->request->isDelete && !$this->_noCheckSign())
+        {
+            $check = $this->_checkSign();
+            if ($check !== 1)
+            {
+                $this->haltReturn($check);
+            }
+        }
+
+        /** 校验用户是否登录 */
+        $this->_checkLogin();
+    }
+
+    public function actions()
+    {
+        $actions = parent::actions();
+        unset($actions['index'], $actions['update'], $actions['create'], $actions['delete'], $actions['view']);
+        return $actions;
+    }
+
+    private function _noCheckSign()
+    {
+        $noSign = [
+            'ysv1/answers/1'
+        ];
+        if (in_array(Yii::$app->request->get('r'), $noSign))
+            return true;
+        return false;
+    }
+
+    /**
+     * @Desc: 正确返回
+     * @User: zhujw <zhjw@xxcb.cn>
+     * @param $result
+     * @return array
+     */
+    public function successReturn($result)
+    {
+        return [
+            'rsm' => $result,
+            'errno' => 1,
+            'err' => null,
+            'is_login' => $this->is_login
+        ];
+    }
+
+    /**
+     * @Desc: 错误返回
+     * @User: zhujw <zhjw@xxcb.cn>
+     * @param $result
+     * @return array
+     */
+    public function errorReturn($result, $errno = -1)
+    {
+        /** 系统级别的错误，记录错误日志 */
+        if ($errno != -2)
+        {
+            $this->_recordLog($result);
+        }
+
+        return [
+                'rsm' => null,
+                'errno' => $errno,
+                'err' => $result
+        ];
+    }
+
+    /**
+     * @Desc: 程序终止返回
+     * @User: zhujw <zhjw@xxcb.cn>
+     * @param $result
+     */
+    public function haltReturn($result, $errno = -1)
+    {
+        $response = Yii::$app->response;
+        $response->format = \yii\web\Response::FORMAT_JSON;
+        $response->data = $this->errorReturn($result, $errno);
+        $response->send();
+        exit;
+    }
+
+    /**
+     * @Desc: 获取对应模型
+     * @User: zhujw <zhjw@xxcb.cn>
+     * @param $id
+     * @return bool
+     */
+    protected function findModel($id)
+    {
+        $modelClass = $this->modelClass;
+        if (($model = $modelClass::findOne($id)) !== null)
+        {
+            return $model;
+        }
+        return false;
+    }
+
+    /**
+     * @Desc: 设置分页信息
+     * @User: zhujw <zhjw@xxcb.cn>
+     * @param $pagination
+     * @return array
+     */
+    protected function setPagination($pagination)
+    {
+        return [
+                '_links' => Link::serialize($pagination->getLinks(true)),
+                '_meta' => [
+                        'totalCount' => $pagination->totalCount,
+                        'pageCount' => $pagination->getPageCount(),
+                        'currentPage' => $pagination->getPage() + 1,
+                        'perPage' => $pagination->getPageSize(),
+                ],
+        ];
+    }
+
+    /**
+     * @Desc: 格式化输出数据列表
+     * @User: zhujw <zhjw@xxcb.cn>
+     * @param $provider object 数据对象
+     * @param bool|false $toArr 是否转为数组
+     * @param $related_table array 关联表数组
+     */
+    protected function formatDataProvider($provider, $toArr = false, $related_table = [])
+    {
+        $items = $provider->getModels();
+        $toArr && $items = \components\XyXy::objectToArr($items, $related_table);
+
+        return array_merge(
+                ['items' => $items],
+                $this->setPagination($provider->getPagination())
+        );
+    }
+
+    /**
+     * @Desc: 校验接口签名是否正确
+     * @User: zhujw <zhjw@xxcb.cn>
+     */
+    private function _checkSign()
+    {
+        $data = Yii::$app->request->get();
+        //$post = file_get_contents( "php://input" );
+
+        $post = Yii::$app->request->post();
+
+        $data = array_merge($data, $post);
+
+        //无需校验的白名单
+        if ($this->white && in_array($data['r'], $this->white))
+            return 1;
+
+        $sign = $data['sign'];
+        unset($data['sign']);
+        if (isset($data['id'])) unset($data['id']);
+        ksort($data);
+
+        $key = 'apiSignKey_' . $data['machine_code'];
+        $signKey = Yii::$app->memcache->get($key); //从缓存中取得签名秘钥信息
+
+        //支持传递一维数组参数
+        $sign_text = [];
+        foreach ($data as $key => $val)
+        {
+            if (is_array($val))
+            {
+                //将二维数组键名转换为字符串格式
+                $arr = [];
+                foreach ($val as $k => $v)
+                {
+                    $arr[$key . '[' . $k . ']'] = $v;
+                }
+                ksort($arr);
+
+                foreach ($arr as $k => $v)
+                {
+                    $sign_text[] = $k . '=' . $v;
+                }
+                unset($arr);
+            }
+            else
+            {
+                $sign_text[] = $key . '=' . $val;
+            }
+        }
+
+        if (!isset($signKey['sign_key']))//签名秘钥不存在
+            return '签名密钥不存在';
+
+        if (time() > $signKey['exp_time'])//签名秘钥失效
+        {
+            Yii::$app->memcache->delete($key); //删除超时的签名秘钥信息
+            return '签名密钥已失效';
+        }
+
+        $sign_text = implode('&', $sign_text) . '&sign=' . $signKey['sign_key'];
+
+        $checkSign = strtolower(md5($sign_text)); //获得签名信息
+
+        if ($sign != $checkSign) return '签名错误';
+        return 1;
+    }
+
+    /**
+     * @Desc: 校验接口签名是否正确
+     * @User: zhujw <zhjw@xxcb.cn>
+     */
+    private function _checkLogin()
+    {
+        $login_cookie = $_COOKIE['login_cookie'] ?: Yii::$app->request->post('login_cookie');
+        $login_cookie = $login_cookie ?: Yii::$app->request->get('login_cookie');
+        $mr = md5($this->guid . $this->login_sign);
+        
+        if (empty($login_cookie) || ($login_cookie != $mr))
+        {
+            // 没有cookie 直接显示未登录
+            $this->is_login = 0;
+
+            if (in_array(Yii::$app->request->get('r'), $this->need_login) && !Yii::$app->request->isGet)
+            {
+                $this->haltReturn('请先登录', -3);
+            }
+            return;
+        }
+        $this->is_login = 1;
+    }
+
+    /**
+     * @Desc: 校验接口访问控制
+     * @User: limj <limj@xxcb.cn>
+     */
+    private function _checkAccess()
+    {
+        $r = Yii::$app->request->get('r');
+        if (empty($this->guid))
+        {
+            // 启动app请求获取guid接口默认10秒钟内最多请求100次
+            $this->access_rate[$r] = [100,10];
+        }
+        $key = md5('acs_' . $r . $this->guid);
+        $cache = Yii::$app->memcache->getMemcache();
+        $res = $cache->get($key);
+        $accessNum = intval($cache->get($key));
+        if (empty($this->access_rate[$r]))
+        {
+            // 默认是10秒钟最多访问20 次
+            $this->access_rate[$r] = [20,10];
+        }
+        if ($accessNum < 1)
+        {
+            // 第一次访问记录缓存
+            $cache->set($key, 1, $this->access_rate[$r][1]);
+        }
+        elseif ($accessNum <= $this->access_rate[$r][0])
+        {
+            $cache->increment($key);
+        }
+        else
+        {
+            // 提醒用户访问频率过多
+            $this->errorReturn('您访问过于频繁，请稍后再访问',-2);
+            Yii::$app->end();
+        }
+    }
+
+    /**
+     * @Desc: 记录系统级别的API错误日志
+     * @User: zhujw <zhjw@xxcb.cn>
+     * @param: $sql string SQL错误记录SQL语句
+     */
+    private function _recordLog($result)
+    {
+        $model = new ApiLog();
+
+        $model->url = Yii::$app->request->getPathInfo();
+        $model->content = $result;
+        $model->get_params = Yii::$app->request->get();
+        $model->post_params = Yii::$app->request->post();
+        $model->insert_time = time();
+        $model->ip = Yii::$app->request->getUserIP();
+        $model->save();
+    }
+}
