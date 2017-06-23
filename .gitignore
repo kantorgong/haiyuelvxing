@@ -1,0 +1,18 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+#phpstorm
+.idea/
+
+#other
+.svn/
+
+#yii
+backend/runtime/
+backend/web/asset/
+frontend/runtime/
+frontend/web/asset/
+
+
