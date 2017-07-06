@@ -10,7 +10,7 @@
 
 namespace backend\modules\wxservice\controllers;
 
-use common\models\wxservice\Search\CouponLogSearch;
+use common\models\wxservice\search\CouponLogSearch;
 use components\helper\CommonUtility;
 use Yii;
 use yii\data\ActiveDataProvider;
