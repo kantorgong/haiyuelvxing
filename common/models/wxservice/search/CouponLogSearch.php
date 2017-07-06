@@ -8,7 +8,7 @@
  * @since    1.0
  */
 
-namespace common\models\wxservice\Search;
+namespace common\models\wxservice\search;
 
 use common\models\wxservice\Coupon;
 use Yii;
