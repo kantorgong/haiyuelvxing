@@ -15,4 +15,7 @@ backend/web/asset/
 frontend/runtime/
 frontend/web/asset/
 
+#config
+common/config/main-local.php
+common/config/params.php
 

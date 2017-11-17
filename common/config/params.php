@@ -18,6 +18,19 @@ $params = [
                             //'file'  => '/data/winfile/zhujw/wechat.log',
                     ]
             ],
+        'yezilvxing'      => [
+            'debug'     => true,
+            'app_id'    => 'wx6b93aef3d1598d02',
+            'secret'    => 'd432f0250518abd5c294b9471ac9b284',
+            'token'     => 'yezilvxingtoken',
+            'oauth' => [
+                'callback' => '/wechat/oauth/callback.html',
+                'scopes'   => ['snsapi_userinfo'],
+            ],
+            'log' => [
+                'level' => 'debug',
+            ]
+        ],
         '94uv'     =>[
             'debug'     => true,
             'app_id'    => 'wx2c4643a8a115af7f',

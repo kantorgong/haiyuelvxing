@@ -1,4 +1,6 @@
 <?php
+
+error_reporting(E_ALL);
 ini_set('memory_limit', '1024M');
 ini_set("session.cookie_httponly", 1);
 defined('YII_DEBUG') or define('YII_DEBUG', true);//生产环境 本行注释掉

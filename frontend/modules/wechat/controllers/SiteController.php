@@ -10,7 +10,7 @@ class SiteController extends BaseFrontController
     public function actionIndex()
     {
         $this->oauthCheck([
-            'app_alias_name' => 'xxcb'
+            'app_alias_name' => 'yezilvxing'
         ]);
 
         VarDumper::dump(Yii::$app->wechat->user);

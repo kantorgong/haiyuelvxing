@@ -1,5 +1,4 @@
 <?php
-ini_set("session.cookie_httponly", 1);
 defined('YII_DEBUG') or define('YII_DEBUG', true);//生产后本行注释掉
 defined('YII_ENV') or define('YII_ENV', 'dev');//测试环境 'dev' 修改为 'test', 生产环境 'dev' 修改为 'prod'
 require(__DIR__ . '/../../vendor/autoload.php');
