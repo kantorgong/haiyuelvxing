@@ -64,7 +64,7 @@ class Wechat extends Component
             if (!$returnUrl)
                 throw new yii\web\NotFoundHttpException();
 
-            Yii::$app->session->set('wxs_appName', Yii::$app->request->get('appName', 'xxcb'));     # 微信回调时使用
+            Yii::$app->session->set('wxs_appName', Yii::$app->request->get('appName', 'yezilvxing'));     # 微信回调时使用
             Yii::$app->session->set('wxs_returnUrl', Yii::$app->request->get('returnUrl'));         # 返回来源页使用
             $snsApi = Yii::$app->request->get('snsApi', 'snsapi_userinfo');
             Yii::$app->session->set('wxs_snsApi', $snsApi); # 接口方式
@@ -89,7 +89,7 @@ class Wechat extends Component
                 'name' => $cookieName,
                 'value' => $cookieValue,
                 'expire' => time() + 8640000,
-                'domain' => 'xxcb.' . \components\XyXy::getEnv(true)
+                'domain' => 'haiyuelvxing.' . \components\XyXy::getEnv(true)
         ]));
 
         if (Yii::$app->session->get('wxs_snsApi') == 'snsapi_userinfo')
@@ -101,7 +101,7 @@ class Wechat extends Component
                     'name' => $cookieName,
                     'value' => $cookieValue,
                     'expire' => time() + 8640000,
-                    'domain' => 'xxcb.' . \components\XyXy::getEnv(true)
+                    'domain' => 'haiyuelvxing.' . \components\XyXy::getEnv(true)
             ]));
         }
 

@@ -22,6 +22,14 @@ const routers = [{
 		});
 	}
 }, {
+	path: '/prize/:id',
+	name: 'prizep',
+	component(resolve) {
+		require.ensure(['./views/prize.vue'], () => {
+			resolve(require('./views/prize.vue'));
+		});
+	}
+}, {
     path: '/shake/:id',
     name: 'shake',
     component(resolve) {

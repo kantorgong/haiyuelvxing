@@ -411,6 +411,6 @@ class DrawController extends \backend\modules\wxservice\components\Controller
     public function actionQrcode($guid)
     {
         $test = YII_ENV == 'test' ? 'test.' : '';
-        return QrCode::png('http://' . $test . 'plus.xxcb.cn/lottery/#/prize/' . $guid, false, 0, 6);
+        return QrCode::png('http://' . $test . 'plus.haiyuelvxing.com/lottery/#/prize/' . $guid, false, 0, 6);
     }
 }

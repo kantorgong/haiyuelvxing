@@ -21,7 +21,7 @@ class FocusController extends Controller
     {
         if(!self::$_instance instanceof Application)
         {
-            self::$_instance = new Application(Yii::$app->params['wechat']['xxcb']);
+            self::$_instance = new Application(Yii::$app->params['wechat']['yezilvxing']);
         }
         return self::$_instance;
     }

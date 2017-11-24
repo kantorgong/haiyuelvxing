@@ -60,7 +60,7 @@ class ApplyController extends \frontend\modules\activity\components\Controller
 
         //微信授权
         $this->oauthCheck([
-                'app_alias_name' => $app['mp_type'] ?: 'xxcb',
+                'app_alias_name' => $app['mp_type'] ?: 'yezilvxign',
                 'ajax' => true
         ]);
 
@@ -119,7 +119,7 @@ class ApplyController extends \frontend\modules\activity\components\Controller
 
         //微信授权
         $this->oauthCheck([
-                'app_alias_name' => $app['mp_type'] ?: 'xxcb',
+                'app_alias_name' => $app['mp_type'] ?: 'yezilvxing',
                 'ajax' => true
         ]);
 

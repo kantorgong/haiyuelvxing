@@ -27,7 +27,7 @@
 		<div class="result-wrapper" v-if="complete > 0">
 			<div class="container result-con">
 				<strong>{{nickname}}，恭喜你中了{{prizeName}}</strong>
-				<p>*请联系我们领取</p>
+				<p></p>
 				<form>
 					<div class="line">
 						<label>真实姓名:</label>

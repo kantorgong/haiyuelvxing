@@ -24,13 +24,17 @@
     <yd-cell-item arrow>
       <yd-icon slot="icon" name="discount" size=".42rem"></yd-icon>
       <span slot="left">我的优惠券</span>
-      <span slot="right" ><a href="#mycoupon">查看</a></span>
+      <span slot="right" >
+        <router-link to="/myCoupon">查看</router-link>
+      </span>
     </yd-cell-item>
 
     <yd-cell-item arrow>
       <yd-icon slot="icon" name="star" size=".42rem"></yd-icon>
       <span slot="left">我的抽奖</span>
-      <span slot="right"><a href="#myprize">查看</a></span>
+      <span slot="right">
+        <router-link to="/myPrize">查看</router-link>
+      </span>
     </yd-cell-item>
   </yd-cell-group>
 

@@ -83,20 +83,20 @@ $this->title = '微信活动';
                 'contentOptions' => ['style' => 'width: 20px;'],
                 'filterOptions' => ['style' => 'width: 20px;'],
             ],
-            [
-                'attribute'=>'bonus',
-                'label' => '是否红包活动',
-                'format' => 'raw',
-                'value' => function ($data) {
-                    if(!$data['bonus'])
-                        return '<span class="label label-default">否</span>';
-                    else
-                        return '<span class="label label-success">是</span>';
-                },
-                'filter' => Html::activeDropDownList($searchModel, 'bonus', ['' => '','0' => '否', '1' => '是'], ['class' => 'form-control']),
-                'contentOptions' => ['style' => 'width: 30px;'],
-                'filterOptions' => ['style' => 'width: 30px;'],
-            ],
+//            [
+//                'attribute'=>'bonus',
+//                'label' => '是否红包活动',
+//                'format' => 'raw',
+//                'value' => function ($data) {
+//                    if(!$data['bonus'])
+//                        return '<span class="label label-default">否</span>';
+//                    else
+//                        return '<span class="label label-success">是</span>';
+//                },
+//                'filter' => Html::activeDropDownList($searchModel, 'bonus', ['' => '','0' => '否', '1' => '是'], ['class' => 'form-control']),
+//                'contentOptions' => ['style' => 'width: 30px;'],
+//                'filterOptions' => ['style' => 'width: 30px;'],
+//            ],
             [
                 'label'=>'可抽奖次数',
                 'value' => function($data){return $data['draw_num'];},

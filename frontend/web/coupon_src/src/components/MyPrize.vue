@@ -108,7 +108,7 @@
   .stamp:before {content: '';position: absolute;top:0;bottom:0;left:10px;right:10px;z-index: -1;}
   .stamp:after {content: '';position: absolute;left: 10px;top: 10px;right: 10px;bottom: 10px;box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);z-index: -2;}
   .stamp i{position: absolute;left: 20%;top: 45px;height: 190px;width: 390px;background-color: rgba(255,255,255,.15);transform: rotate(-30deg);}
-  .stamp .par{float: left;padding: 16px 15px;width: 220px;border-right:2px dashed rgba(255,255,255,.3);text-align: left;}
+  .stamp .par{float: left;padding: 16px 15px;width: 130px;border-right:2px dashed rgba(255,255,255,.3);text-align: left;}
   .stamp .par p{color:#fff;}
   .stamp .par span{font-size: 50px;color:#fff;margin-right: 5px;}
   .stamp .par .sign{font-size: 34px;}

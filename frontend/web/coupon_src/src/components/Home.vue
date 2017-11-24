@@ -17,10 +17,15 @@
                 <p></p></div>
               <div class="copy">优惠券
                 <p><br></p>
-                <yd-button type="hollow" @click.native="receiveCoupon(item.coupon_guid, index)"
-                           v-if="!item.couponLog.length">获取
+                <!--<yd-button  id="btnget{{index}}" ref="btnget{{index}}" type="hollow" @click.native="receiveCoupon(item.coupon_guid, index, $event)"-->
+                           <!--v-if="!eachCouponlog(item.couponLog)">获取-->
+                <!--</yd-button>-->
+                <!--<yd-button type="disabled" v-if="eachCouponlog(item.couponLog)">已获取</yd-button>-->
+
+                <yd-button  id="btnget{{index}}" ref="btnget{{index}}" type="hollow" @click.native="receiveCoupon(item.coupon_guid, index, $event)"
+                            v-if="!eachCouponlog(item.couponLog)">获取
                 </yd-button>
-                <yd-button type="disabled" v-if="item.couponLog.length >0">已获取</yd-button>
+                <yd-button type="disabled" v-if="eachCouponlog(item.couponLog)">已获取</yd-button>
               </div>
               <i style="padding-left: 60px">{{item.depict}}</i>
             </div>
@@ -57,8 +62,9 @@
     data() {
       return {
         'domain': 'http://' + window.location.hostname,
-//        'domain': 'http://plus.xxcb.cn',
+        'domain': 'http://plus.haiyuelvxing.com',
         'couponlist': {},
+        'openid': '',
         'post': {}
       };
     },
@@ -83,7 +89,7 @@
           //展示优惠券
           let retdata = response.data.data;
           if (retdata) {
-            _this.initCoupon(retdata.couponlist);
+            _this.initCoupon(retdata);
           }
         })
         .catch(function (error) {
@@ -96,15 +102,32 @@
     methods: {
       //初始化优惠券列表
       initCoupon(ele) {
-        this.couponlist = ele;
+        this.couponlist = ele.couponlist;
+        this.openid = ele.openid;
       },
+
+      //遍历获取记录
+      eachCouponlog(cl){
+          let ret = false;
+        for(var i = 0;i < cl.length; i++){
+          if(cl[i]['open_id'] == this.openid){
+              ret = true;
+          }
+        }
+        return ret;
+      },
+
+
+
+
       //用户获取优惠券
-      receiveCoupon(coupon_guid, index) {
+      receiveCoupon(coupon_guid, index, $event) {
         let _this = this;
 
         this.post['coupon_guid'] = coupon_guid;
 
-console.log(this.post);
+        let isget = event.currentTarget;
+
         //提交给后端
         axios.post(_this.domain + '/activity/coupon/receive-coupon.html', qs.stringify({
           data: _this.post
@@ -122,7 +145,15 @@ console.log(this.post);
               return false;
             }
 
-            _this.couponlist[index].couponLog = [1];
+            //禁用
+
+            isget.disabled = 'true';
+            isget.style.cssText = 'background-color:#ccc;color:#f0f0f0;pointer-events:none';
+            isget.innerText = '已领取';
+
+
+
+
 
             //提示成功
             _this.$dialog.toast({
@@ -146,6 +177,8 @@ console.log(this.post);
             console.log(error);
           });
       },
+
+
       //微信分享
       wxShare() {
         let _this = this;
@@ -156,7 +189,7 @@ console.log(this.post);
           imgUrl: _this.domain  + '/' + shareImg.substr(1),
           link: window.location.href,
           title: '分享优惠券，获大奖',
-          desc: '分享优惠券，获大奖',
+          desc: '海悦国旅送您优惠券，分享优惠券还能抽现金大奖',
           success: function () {
             axios.get('/activity/coupon/share.html')
               .then(function (response) {
@@ -224,7 +257,7 @@ console.log(this.post);
   .stamp .par {
     float: left;
     padding: 16px 15px;
-    width: 220px;
+    width: 130px;
     border-right: 2px dashed rgba(255, 255, 255, .3);
     text-align: left;
   }

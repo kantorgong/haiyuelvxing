@@ -80,13 +80,13 @@ $this->title = '中奖记录';
                                     return $data->prize->name;
                                 },
                         ],
-                        [
-                                'label' => '红包金额(元)',
-                                'headerOptions' => ['style' => 'text-align: left; width:60px;'],
-                                'value' => function($data){
-                                    return $data->bonus_amount?round($data->bonus_amount/100, 2):0;
-                                },
-                        ],
+//                        [
+//                                'label' => '红包金额(元)',
+//                                'headerOptions' => ['style' => 'text-align: left; width:60px;'],
+//                                'value' => function($data){
+//                                    return $data->bonus_amount?round($data->bonus_amount/100, 2):0;
+//                                },
+//                        ],
                         [
                                 'label' => '中奖时间',
                                 'value' => function($data){if($data['insert_time'])return date("Y-m-d H:i:s", $data['insert_time']);else return '-';},

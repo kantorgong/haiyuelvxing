@@ -34,7 +34,7 @@ var weixin = (function () {
     }
     var path = window.location.href;
     $.ajax({
-        url: 'http://plus.xxcb.cn/wechat/js/index.html?url=' + encodeURIComponent(path),
+        url: 'http://plus.haiyuelvxing.com/wechat/js/index.html?url=' + encodeURIComponent(path),
         dataType: 'json',
         success: function (data) {
             if (data.timestamp && data.noncestr && data.signature) {

@@ -15,7 +15,7 @@ class JsController extends Controller
     public function actionIndex()
     {
         header("Access-Control-Allow-Origin: *");
-        $js = new Application(Yii::$app->params['wechat']['94uv']);
+        $js = new Application(Yii::$app->params['wechat']['yezilvxing']);
         $jsApi = $js->js;
         if(\Yii::$app->request->get('url'))
         {

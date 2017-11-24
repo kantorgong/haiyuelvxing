@@ -45,7 +45,7 @@ class Controller extends BaseFrontController
      */
     protected function _wechatOauth($local_url)
     {
-        $redirect_uri = 'http://m.my.94uv.' . \components\XyXy::getEnv() . '/wechatOauth/getWxPublicAutor.html?scope_type=snsapi_userinfo&app_id=4&local_url=' . urlencode($local_url);
+        $redirect_uri = 'http://plus.haiyuelvxing.' . \components\XyXy::getEnv() . '/wechatOauth/getWxPublicAutor.html?scope_type=snsapi_userinfo&app_id=4&local_url=' . urlencode($local_url);
         \Yii::$app->response->redirect($redirect_uri)->send();
     }
 

@@ -16,7 +16,7 @@
   <yd-cell-group>
 
     <ul v-for="mc in mycoupon">
-      <li>
+      <li class="couponli">
         <div  class="stamp " v-bind:class="[mc.status > 0 ? 'stamp02' : 'stamp01']">
           <div class="par"><p>{{mc.title}}</p><sub class="sign">￥</sub><span>{{mc.price}}</span><sub></sub><p v-if="mc.status == 0">未使用</p><p v-if="mc.status > 0">已经使用</p></div>
           <div class="copy">优惠券<p>领：{{mc.insert_time | time}}</p><p v-if="mc.status > 0">销：{{mc.operat_time | time}}</p></div>
@@ -108,11 +108,12 @@
     text-align: center;
   }
 
+  .couponli {height: 154px}
   .stamp {width: 100%;height: 140px;padding: 0 10px;position: relative;overflow: hidden;}
   .stamp:before {content: '';position: absolute;top:0;bottom:0;left:10px;right:10px;z-index: -1;}
   .stamp:after {content: '';position: absolute;left: 10px;top: 10px;right: 10px;bottom: 10px;box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);z-index: -2;}
   .stamp i{position: absolute;left: 20%;top: 45px;height: 190px;width: 390px;background-color: rgba(255,255,255,.15);transform: rotate(-30deg);}
-  .stamp .par{float: left;padding: 16px 15px;width: 220px;border-right:2px dashed rgba(255,255,255,.3);text-align: left;}
+  .stamp .par{float: left;padding: 16px 15px;width: 130px;border-right:2px dashed rgba(255,255,255,.3);text-align: left;}
   .stamp .par p{color:#fff;}
   .stamp .par span{font-size: 50px;color:#fff;margin-right: 5px;}
   .stamp .par .sign{font-size: 34px;}

@@ -45,10 +45,9 @@ class CouponController extends \frontend\modules\activity\components\Controller
         }
 
 
-
         //微信授权
         $this->oauthCheck([
-            'app_alias_name' => $app['mp_type'] ?: 'xxcb',
+            'app_alias_name' => $app['mp_type'] ?: 'yezilvxing',
             'ajax' => true,
             'db' => true,
             'silence' => false
@@ -67,7 +66,8 @@ class CouponController extends \frontend\modules\activity\components\Controller
 //        }
 
         $this->success([
-            'couponlist' => $app
+            'couponlist' => $app,
+            'openid' => $userInfo->id
         ]);
     }
 
@@ -94,7 +94,7 @@ class CouponController extends \frontend\modules\activity\components\Controller
 
         //微信授权
         $this->oauthCheck([
-            'app_alias_name' => $app['mp_type'] ?: 'xxcb',
+            'app_alias_name' => $app['mp_type'] ?: 'yezilvxing',
             'ajax' => true,
             'db' => true,
             'silence' => false
@@ -148,7 +148,7 @@ class CouponController extends \frontend\modules\activity\components\Controller
         {
             $app = Coupon::find()->asArray()->one();
             $this->oauthCheck([
-                'app_alias_name' => $app['mp_type'] ?: 'xxcb',
+                'app_alias_name' => $app['mp_type'] ?: 'yezilvxing',
                 'ajax' => true,
                 'db' => true,
                 'silence' => false
@@ -177,7 +177,7 @@ class CouponController extends \frontend\modules\activity\components\Controller
         $app = Coupon::find()->asArray()->one();
         //微信授权
         $this->oauthCheck([
-            'app_alias_name' => $app['mp_type'] ?: 'xxcb',
+            'app_alias_name' => $app['mp_type'] ?: 'yezilvxing',
             'ajax' => true,
             'db' => true,
             'silence' => false
@@ -222,7 +222,7 @@ class CouponController extends \frontend\modules\activity\components\Controller
         $app = Coupon::find()->asArray()->one();
         //微信授权
         $this->oauthCheck([
-            'app_alias_name' => $app['mp_type'] ?: 'xxcb',
+            'app_alias_name' => $app['mp_type'] ?: 'yezilvxing',
             'ajax' => true,
             'db' => true,
             'silence' => false
